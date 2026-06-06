@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HyperBot - Painel de Controlo Avançado</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #060810; color: #f1f5f9; min-height: 100vh; }
+        .hyper-header { background-color: #0c0f1d; border-bottom: 1px solid #1a223f; padding: 1.2rem 2rem; }
+        .header-container { max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .hyper-header h1 { font-size: 1.3rem; color: #a5b4fc; font-weight: bold; }
+        .text-hyper { color: #6366f1; }
+        .status-badge { background-color: #02040a; border: 1px solid #1a223f; padding: 0.35rem 0.85rem; border-radius: 9999px; font-size: 0.75rem; display: flex; align-items: center; gap: 0.5rem; font-weight: bold;}
+        .dot { width: 8px; height: 8px; background-color: #ef4444; border-radius: 50%; transition: background 0.3s; }
+        .dot.online { background-color: #10b981; }
+        .dashboard-layout { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+        .tabs-nav { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #1a223f; padding-bottom: 0.5rem; }
+        .tab-btn { background: transparent; border: none; color: #94a3b8; padding: 0.75rem 1.2rem; cursor: pointer; font-weight: 600; font-size: 0.9rem; border-radius: 0.5rem; transition: all 0.2s; }
+        .tab-btn.active, .tab-btn:hover { background-color: #1a223f; color: #ffffff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .card { background-color: #0c0f1d; border: 1px solid #1a223f; border-radius: 1.25rem; padding: 2rem; margin-bottom: 1.5rem; }
+        .shadow { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
+        .card-header h2 { font-size: 1.2rem; color: #f8fafc; margin-bottom: 0.5rem; }
+        .card-header p { font-size: 0.85rem; color: #94a3b8; margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: #cbd5e1; font-weight: 500; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; background-color: #02040a; border: 1px solid #1a223f; border-radius: 0.75rem; padding: 0.85rem; color: white; outline: none; }
+        .flex-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .btn-hyper { width: 100%; background-color: #4f46e5; color: white; border: none; padding: 1rem; border-radius: 0.75rem; cursor: pointer; font-weight: bold; font-size: 0.95rem; transition: background 0.2s; }
+        .btn-hyper:hover { background-color: #4338ca; }
+        .btn-power { background-color: #10b981; margin-top: 1rem; }
+        .btn-power.off { background-color: #ef4444; }
+        .section-title { font-size: 1rem; margin: 2rem 0 1rem 0; color: #a5b4fc; text-transform: uppercase; letter-spacing: 0.05em;}
+        .grid-categories { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.5rem; }
+        .cat-item { background-color: #02040a; border: 1px solid #1a223f; padding: 0.75rem; border-radius: 0.5rem; font-size: 0.85rem; color: #cbd5e1; }
+        .commands-list { display: flex; flex-direction: column; gap: 0.75rem; }
+        .command-item { background-color: #02040a; border: 1px solid #1a223f; padding: 0.85rem 1rem; border-radius: 0.75rem; display: flex; align-items: center; gap: 1rem; }
+        .badge-cmd { background-color: #ef4444; color: white; font-family: monospace; padding: 0.25rem 0.6rem; border-radius: 0.35rem; font-weight: bold; min-width: 120px; text-align: center; font-size: 0.85rem; }
+        .command-item p { font-size: 0.85rem; color: #cbd5e1; }
+        .ai-badge { background: linear-gradient(90deg, #8b5cf6, #ec4899); color: white; padding: 0.2rem 0.5rem; border-radius: 0.35rem; font-size: 0.7rem; font-weight: bold; margin-left: 0.5rem; }
+    </style>
+</head>
+<body>
+
+    <header class="hyper-header">
+        <div class="header-container">
+            <h1><i class="fa-solid fa-shield-cat text-hyper"></i> HyperBot Ultra Studio <span class="ai-badge">IA ATIVADA</span></h1>
+            <span class="status-badge"><span class="dot" id="status-dot"></span> <span id="status-text">Bot Offline</span></span>
+        </div>
+    </header>
+
+    <div class="dashboard-layout">
+        
+        <div class="card shadow">
+            <div class="card-header">
+                <h2><i class="fa-solid fa-key text-hyper"></i> Conexão, Inicialização e Inteligência Artificial</h2>
+                <p>Insira os tokens obrigatórios da sua aplicação do Discord e a sua Chave da OpenAI para o suporte automático.</p>
+            </div>
+            <div class="form-group flex-inputs">
+                <div>
+                    <label>ID do Bot (Client ID):</label>
+                    <input type="text" id="botId" placeholder="Ex: 123456789012345678">
+                </div>
+                <div>
+                    <label>Token Secreto do Bot:</label>
+                    <input type="password" id="botToken" placeholder="Insira o seu token secreto aqui">
+                </div>
+            </div>
+            <div class="form-group">
+                <label><i class="fa-solid fa-brain text-hyper"></i> Chave de API OpenAI (Para IA responder aos Tickets):</label>
+                <input type="password" id="openaiKey" placeholder="sk-proj-...">
+            </div>
+            <button id="btnPower" onclick="toggleBot()" class="btn-hyper btn-power"><i class="fa-solid fa-power-off"></i> LIGAR HYPERBOT</button>
+        </div>
+
+        <nav class="tabs-nav">
+            <button class="tab-btn active" id="btn-tab-tickets" onclick="switchTab('tickets')"><i class="fa-solid fa-ticket"></i> Suporte e Canais (20 Categorias)</button>
+            <button class="tab-btn" id="btn-tab-mod" onclick="switchTab('mod')"><i class="fa-solid fa-gavel"></i> Moderação (20 Comandos)</button>
+        </nav>
+
+        <main class="hyper-content">
+            <div id="tab-tickets" class="tab-content active">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-sliders"></i> Configurar Envio Automático do /painel</h2>
+                        <p>Defina o texto, as diretrizes da Inteligência Artificial e selecione o canal destino real do Discord.</p>
+                    </div>
+                    <div class="form-group flex-inputs">
+                        <div>
+                            <label>ID do Canal para Enviar o Painel:</label>
+                            <input type="text" id="canalId" placeholder="Ex: 112233445566778899">
+                        </div>
+                        <div>
+                            <label>Título da Embed:</label>
+                            <input type="text" id="txTitulo" value="🎫 CENTRAL DE ATENDIMENTO HYPER">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Descrição da Embed:</label>
+                        <textarea id="txDescricao" rows="2">Selecione o departamento correto para iniciar o seu atendimento privado controlado por IA.</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-robot"></i> Instruções e Personalidade da IA (Prompt do Sistema):</label>
+                        <textarea id="aiPrompt" rows="3">Tu és o HyperAssistente, uma inteligência artificial integrada de suporte. Responda de forma educada, curta, precisa e direta às dúvidas dos membros no canal de ticket aberto.</textarea>
+                    </div>
+                    <button onclick="enviarConfig()" class="btn-hyper"><i class="fa-solid fa-sync"></i> Sincronizar e Enviar Painel ao Canal</button>
+                    
+                    <h3 class="section-title">📌 Categorias Ativas com Triagem por IA (20 Tipos)</h3>
+                    <div class="grid-categories">
+                        <div class="cat-item">1. Suporte Geral</div><div class="cat-item">2. Financeiro</div>
+                        <div class="cat-item">3. Denúncias</div><div class="cat-item">4. Revisão de Ban</div>
+                        <div class="cat-item">5. Parcerias</div><div class="cat-item">6. Dúvidas VIP</div>
+                        <div class="cat-item">7. Bugs/Erros</div><div class="cat-item">8. Candidaturas</div>
+                        <div class="cat-item">9. Reclamações</div><div class="cat-item">10. Setores Técnicos</div>
+                        <div class="cat-item">11. Eventos</div><div class="cat-item">12. Atendimento Master</div>
+                        <div class="cat-item">13. Ativação de Compras</div><div class="cat-item">14. Sugestões</div>
+                        <div class="cat-item">15. Suporte Streamer</div><div class="cat-item">16. Mudança de Donator</div>
+                        <div class="cat-item">17. Recuperação de Conta</div><div class="cat-item">18. Vendas Diretas</div>
+                        <div class="cat-item">19. Media & Design</div><div class="cat-item">20. Outros Assuntos</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-mod" class="tab-content">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-terminal"></i> Lista de Comandos de Segurança Registados (20 Unidades Nativas)</h2>
+                        <p>Apenas administradores podem executar. Avisa publicamente quem disparou o comando.</p>
+                    </div>
+                    <div class="commands-list">
+                        <div class="command-item"><span class="badge-cmd">/clear</span><p>Elimina mensagens em massa de um canal de texto.</p></div>
+                        <div class="command-item"><span class="badge-cmd">/nuke</span><p>Clona e elimina o canal atual para apagar todo o histórico de mensagens.</p></div>
+                        <div class="command-item"><span class="badge-cmd">/lock</span><p>Bloqueia o envio de mensagens para os membros comuns no canal.</p></div>
+                        <div class="command-item"><span class="badge-cmd">/unlock</span><p>Liberta o canal para conversação normal novamente.</p></div>
+                        <div class="command-item"><span class="badge-cmd">/ban</span><p>Bane um utilizador de forma permanente do servidor.</p></div>
+                        <div class="command-item"><span class="badge-cmd">/unban</span><p>Remove a punição de banimento de um utilizador.</p></div>
+                        <div class="command-item"><span class="badge-cmd">/kick</span><p>Expulsa o membro selecionado do servidor.</p></div>
+                        <div class="command-item"><span class="badge-cmd">/mute</span><p>Aplica um castigo de silêncio temporário ao utilizador.</p></div>
+                        <div class="command-item"><span class="badge-cmd">/unmute</span><p>Retira o castigo de silêncio antes do tempo expirar.</p></div>
+                        <div class="command-item"><span class="badge-cmd">/warn</span><p>Aplica uma advertência formal à conta do utilizador.</p></div>
+                        <div class="command-item"><span class="badge-cmd">/slowmode</span><p>Define o tempo de espera entre mensagens no canal atual.</p></div>
+                        <div class="command-item"><span class="badge-cmd">/lockserver</span><p>Tranca o envio de mensagens em todos os canais públicos do servidor.</p></div>
+                        <div class="command-item"><span class="badge-cmd">/unlockserver</span><p>Destranca a comunicação global em todos os canais públicos.</p></div>
+                        <div class="command-item"><span class="badge-cmd">/addrole</span><p>Adiciona um cargo a um membro específico.</p></div>
+                        <div class="command-item"><span class="badge-cmd">/removerole</span><p>Remove um cargo do membro selecionado.</p></div>
+                        <div class="command-item"><span class="badge-cmd">/setnick</span><p>Altera forçadamente a alcunha de um membro no servidor.</p></div>
+                        <div class="command-item"><span class="badge-cmd">/tempban</span><p>Bane temporariamente o utilizador com contagem decrescente.</p></div>
+                        <div class="command-item"><span class="badge-cmd">/jail</span><p>Prende um membro num canal isolado removendo os seus outros cargos.</p></div>
+                        <div class="command-item"><span class="badge-cmd">/unjail</span><p>Devolve a liberdade e cargos ao membro que estava preso.</p></div>
+                        <div class="command-item"><span class="badge-cmd">/checkwarns</span><p>Lista o histórico completo de advertências aplicadas a um membro.</p></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let botOnline = false;
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            if (tabName === 'tickets') document.getElementById('btn-tab-tickets').classList.add('active');
+            if (tabName === 'mod') document.getElementById('btn-tab-mod').classList.add('active');
+        }
+
+        async function toggleBot() {
+            const token = document.getElementById('botToken').value;
+            const client_id = document.getElementById('botId').value;
+            const openai_key = document.getElementById('openaiKey').value;
+
+            if (!token || !client_id) {
+                alert("⚠️ Por favor, preencha o ID do Bot e o Token antes de avançar.");
+                return;
+            }
+
+            const acao = botOnline ? 'desligar' : 'ligar';
+            
+            try {
+                const res = await fetch('http://localhost:5000/api/power', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ acao, token, client_id, openai_key })
+                });
+                const dados = await res.json();
+                
+                if (dados.status === "ligando") {
+                    alert("⚡ Inicializando o HyperBot com Módulo de Inteligência Artificial!");
+                    verificarStatus();
+                } else {
+                    alert("🛑 Bot desligado.");
+                    definirEstadoInterface(false);
+                }
+            } catch (err) {
+                alert("❌ Erro ao comunicar com o servidor Python.");
+            }
+        }
+
+        function definirEstadoInterface(online) {
+            botOnline = online;
+            const dot = document.getElementById('status-dot');
+            const txt = document.getElementById('status-text');
+            const btn = document.getElementById('btnPower');
+
+            if (online) {
+                dot.classList.add('online');
+                txt.innerText = "Bot Online";
+                btn.classList.add('off');
+                btn.innerHTML = `<i class="fa-solid fa-power-off"></i> DESLIGAR HYPERBOT`;
+            } else {
+                dot.classList.remove('online');
+                txt.innerText = "Bot Offline";
+                btn.classList.remove('off');
+                btn.innerHTML = `<i class="fa-solid fa-power-off"></i> LIGAR HYPERBOT`;
+            }
+        }
+
+        async function verificarStatus() {
+            try {
+                const res = await fetch('http://localhost:5000/api/status');
+                const dados = await res.json();
+                definirEstadoInterface(dados.online);
+            } catch (e) {}
+        }
+
+        async function enviarConfig() {
+            const titulo = document.getElementById('txTitulo').value;
+            const descricao = document.getElementById('txDescricao').value;
+            const canal_id = document.getElementById('canalId').value;
+            const ai_prompt = document.getElementById('aiPrompt').value;
+
+            try {
+                const res = await fetch('http://localhost:5000/api/config-ultra', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ titulo, descricao, canal_id, ai_prompt })
+                });
+                const r = await res.json();
+                if(r.status === "sucesso") {
+                    alert("🚀 Configurações salvas e comando de envio do Painel disparado para o canal indicado!");
+                } else {
+                    alert("⚠️ " + r.mensagem);
+                }
+            } catch (err) { 
+                alert("❌ Erro de rede ou Bot desativado."); 
+            }
+        }
+
+        setInterval(verificarStatus, 3000);
+        verificarStatus();
+    </script>
+</body>
+</html>
+
